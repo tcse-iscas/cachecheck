@@ -23,7 +23,7 @@ If you want to rerun the same example, please delete these two files first!
 
 ### 4. Run cachecheck.jar for detection bugs.
 The first argument is the path of trace directory. The second one is the name of the application.
-    java -jar cachecheck.jar E:\\Workspaces\\idea\\spark-2.4.3\\trace ConnectedComponentsExample$
+>java -jar cachecheck.jar E:\\Workspaces\\idea\\spark-2.4.3\\trace ConnectedComponentsExample$
 
 Finally, if you can see these information on screen, the tool runs successfully:
 
