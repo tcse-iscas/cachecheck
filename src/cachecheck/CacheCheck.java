@@ -5,13 +5,10 @@ import java.util.ArrayList;
 public class CacheCheck {
 
 	public static void main(String[] args) throws Exception {
-		// TODO Auto-generated method stub
 		String workspace = args[0];
 		String appName = args[1];
 		String traceFilePath = workspace+"\\"+appName+".trace";
-		//"E:\\Workspaces\\idea\\spark-2.4.3\\trace\\ConnectedComponentsExample$.trace";
 		String jobFilePath = workspace+"\\"+appName+".job";
-		//"E:\\Workspaces\\idea\\spark-2.4.3\\trace\\ConnectedComponentsExample$.job";
 		System.out.println("Begin to read job & trace file.");
 		Util util = new Util(traceFilePath, jobFilePath);
 		System.out.println("Read job & trace file done.");

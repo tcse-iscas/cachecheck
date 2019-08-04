@@ -18,7 +18,7 @@ public class Util {
 	private ArrayList<Integer> rddshouldpersit;
 	private ArrayList<String> actualSequence;
 	private ArrayList<String> correctSequence;
-	private Map<Integer, String> detectionReport;
+	private Map<String, String> detectionReport;
 	private String appName = "default";
 	
 	public Util(String traceFilePath, String jobFilePath) {
@@ -26,7 +26,7 @@ public class Util {
 		rddshouldpersit = new ArrayList<Integer>();
 		actualSequence = new ArrayList<String>();
 		correctSequence = new ArrayList<String>();
-		detectionReport = new HashMap<Integer, String>();
+		//detectionReport = new HashMap<Integer, String>();
 		try {
 		appName = traceFilePath.substring(traceFilePath.lastIndexOf("\\"), traceFilePath.lastIndexOf("."));}
 		catch (Exception e) {
@@ -140,13 +140,14 @@ public class Util {
 		return result;
 	}
 	
-	public Map<Integer, String> detectBugs(){
-		Map<Integer, String> report = new HashMap<Integer, String>();
+	public Map<String, String> detectBugs() throws Exception{
+		Map<String, String> report = new HashMap<String, String>();
 		if(correctSequence.size()==0) {
 			System.out.println("Generate correct sequence first please!");
 			return report;
 		}
-		int currentJob = 0;
+		int lastJob = -1;
+		int nextJob = 0;
 		for(String event: correctSequence) {
 			String[] array = event.split(" ");
 			String type = array[0];
@@ -154,28 +155,37 @@ public class Util {
 			switch (type) {
 			case "persist":
 				if(!actualSequence.contains("persist "+id))
-					report.put(id, "No persist");
+					report.put("p-"+id, "No persist");
 				else {
-					int actualPos = actualSequence.indexOf("persist");
-					int actualJobPos = correctSequence.indexOf("job" + currentJob);
-					if (actualPos > actualJobPos)
-						report.put(id, "Lagging persist");
+					int actualPos = actualSequence.indexOf("persist "+id);
+					int nextJobPos = actualSequence.indexOf("job " + nextJob);
+					// If persist is after the next job, it is a lagging persist.
+					// nextJobPos can be -1, which means it is the last job.
+					if (actualPos > nextJobPos)
+						report.put("p-"+id, "Lagging persist");
 				}
 				break;
 			case "unpersist":
 				if(!actualSequence.contains("unpersist "+id))
-					report.put(id, "No unpersist");
+					report.put("up-"+id, "No unpersist");
 				else {
-					int actualPos = actualSequence.indexOf("persist");
-					int actualJobPos = correctSequence.indexOf("job" + currentJob);
-					if(actualPos > actualJobPos)
-						report.put(id, "Lagging unpersist");
-					else if(actualPos < actualJobPos - 1)
-						report.put(id, "Premature unpersist");
+					int actualPos = actualSequence.indexOf("unpersist "+id);
+					int lastJobPos = actualSequence.indexOf("job " + lastJob);
+					int nextJobPos = actualSequence.indexOf("job " + nextJob);
+					// If unpersist is after the next job, it is a lagging unpersist.
+					// The next job can be non-existent (nextJobPos == -1),
+					// because it is after the last job. This situation is not a bug.
+					if(actualPos > nextJobPos && nextJobPos > 0)
+						report.put("up-"+id, "Lagging unpersist");
+					// If unpersist is before the first action, or before the last job, 
+					// it is a premature unpersist
+					else if(lastJobPos < 0 || actualPos < lastJobPos)
+						report.put("up-"+id, "Premature unpersist");
 				}
 				break;
 			case "job":
-				currentJob = id;
+				lastJob = id;
+				nextJob = id + 1;
 			default:
 				break;
 			}
@@ -185,7 +195,7 @@ public class Util {
 			String type = array[0];
 			int id = Integer.parseInt(array[1]);
 			if (!type.equals("job") && !rddshouldpersit.contains(id)) {
-				report.put(id, "Unnecessary persist");
+				report.put("p-"+id, "Unnecessary persist");
 			}
 		}
 		detectionReport = report;
@@ -193,19 +203,19 @@ public class Util {
 	}
 	
 	public void printDetectionReport() throws Exception{
-		if(detectionReport.size()==0) {
+		if(null == detectionReport) {
 			System.out.println("Run detection process first please!");
 			return;
 		}
-		for(Entry<Integer, String> entry: detectionReport.entrySet()) {
-			int id = entry.getKey();
+		for(Entry<String, String> entry: detectionReport.entrySet()) {
+			int id = Integer.parseInt(entry.getKey().split("-")[1]);
 			String bug = entry.getValue();
 			System.out.println("Bug: [" + bug + "] for RDD " + id);
 		}
 	}
 	
 	public void saveReport(String path) throws IOException {
-		if(detectionReport.size()==0) {
+		if(null == detectionReport) {
 			System.out.println("Run detection process first please!");
 			return;
 		}
@@ -219,8 +229,8 @@ public class Util {
 			reportFile.createNewFile();
 			FileOutputStream fos = new FileOutputStream(reportFile);
 			OutputStreamWriter osw = new OutputStreamWriter(fos);
-			for(Entry<Integer, String> entry: detectionReport.entrySet()) {
-				int id = entry.getKey();
+			for(Entry<String, String> entry: detectionReport.entrySet()) {
+				int id = Integer.parseInt(entry.getKey().split("-")[1]);
 				String bug = entry.getValue();
 				osw.write("Bug: [" + bug + "] for RDD " + id + "\r\n");
 			}
