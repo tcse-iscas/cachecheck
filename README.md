@@ -21,7 +21,7 @@ The trace file and job info file will be in this dir.
 Two files will created in trace directory. 
 If you want to rerun the same example, please delete these two files first!
 
-### 4. Run cachecheck.jar for detection bugs.
+### 4. Run cachecheck.jar for detecting bugs.
 The first argument is the path of trace directory. The second one is the name of the application.
 >java -jar cachecheck.jar E:\\Workspaces\\idea\\spark-2.4.3\\trace ConnectedComponentsExample$
 
@@ -45,13 +45,14 @@ Finally, if you can see these information on screen, the tool runs successfully:
     Begin to detect bugs by comparing correct sequence with actual sequence.
     Bug detection done!
     Bugs:
+    Bug: [No unpersist] for RDD 25
+    Bug: [Unnecessary persist] for RDD 38
+    Bug: [No persist] for RDD 25
     Bug: [No unpersist] for RDD 32
     Bug: [No unpersist] for RDD 2
-    Bug: [Unnecessary persist] for RDD 21
-    Bug: [Unnecessary persist] for RDD 38
-    Bug: [No unpersist] for RDD 25
-    Bug: [Unnecessary persist] for RDD 11
     Bug: [Unnecessary persist] for RDD 13
     Bug: [Unnecessary persist] for RDD 46
+    Bug: [Unnecessary persist] for RDD 11
+    Bug: [Unnecessary persist] for RDD 21
     Saving bug report to E:\\Workspaces\\idea\\spark-2.4.3\\trace\ConnectedComponentsExample$.report
     Finished.
