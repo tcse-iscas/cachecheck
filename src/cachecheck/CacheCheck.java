@@ -7,10 +7,16 @@ public class CacheCheck {
 	public static void main(String[] args) throws Exception {
 		String workspace = args[0];
 		String appName = args[1];
-		String traceFilePath = workspace+"\\"+appName+".trace";
-		String jobFilePath = workspace+"\\"+appName+".job";
+		String fileSeparator = "";
+		String os = System.getProperty("os.name");
+		if(os.toLowerCase().startsWith("win"))
+			fileSeparator = "\\";
+		else
+			fileSeparator = "/";
+		String traceFilePath = workspace+fileSeparator+appName+".trace";
+		String jobFilePath = workspace+fileSeparator+appName+".job";
 		System.out.println("Begin to read job & trace file.");
-		Util util = new Util(traceFilePath, jobFilePath);
+		Util util = new Util(traceFilePath, jobFilePath, appName);
 		System.out.println("Read job & trace file done.");
 		System.out.println("Jobs:");
 		ArrayList<DAG> jobs = util.jobs;
@@ -49,7 +55,7 @@ public class CacheCheck {
 		System.out.println("Bug detection done!");
 		System.out.println("Bugs:");
 		util.printDetectionReport();
-		System.out.println("Saving bug report to " + workspace+"\\"+appName+".report");
+		System.out.println("Saving bug report to " + workspace+fileSeparator+appName+".report");
 		util.saveReport(workspace);
 		System.out.println("Finished.");
 	}

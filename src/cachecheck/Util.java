@@ -21,17 +21,12 @@ public class Util {
 	private Map<String, String> detectionReport;
 	private String appName = "default";
 	
-	public Util(String traceFilePath, String jobFilePath) {
+	public Util(String traceFilePath, String jobFilePath, String appName) {
 		jobs = new ArrayList<DAG>();
 		rddshouldpersit = new ArrayList<Integer>();
 		actualSequence = new ArrayList<String>();
 		correctSequence = new ArrayList<String>();
-		//detectionReport = new HashMap<Integer, String>();
-		try {
-		appName = traceFilePath.substring(traceFilePath.lastIndexOf("\\"), traceFilePath.lastIndexOf("."));}
-		catch (Exception e) {
-			System.out.println("Please format the name of trace file!");
-		}
+		this.appName = appName;
 		// Read jobfile
 		File jobFile = new File(jobFilePath);
 		try {
