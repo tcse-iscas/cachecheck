@@ -56,7 +56,7 @@ public class CacheCheck {
 		System.out.println("Bugs:");
 		util.printDetectionReport();
 		System.out.println("Saving bug report to " + workspace+fileSeparator+appName+".report");
-		util.saveReport(workspace);
+		util.saveReport(workspace+fileSeparator);
 		System.out.println("Finished.");
 	}
 
