@@ -1,6 +1,35 @@
 	
 import java.io._
 
+  // instrumentation code
+  private def writePerPos(operation: String, perposfile: String): Unit = {
+    val file = new File(perposfile)
+    if(!file.exists())
+      file.createNewFile()
+    val out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, true), "UTF-8"))
+
+    val sb = new StringBuffer
+    val stacks = new Throwable().getStackTrace
+    val stackLength = stacks.length
+
+    var usefulTraces = new ArrayBuffer[Int]()
+      for (i <- 1 until stackLength - 1) {
+        val methodName = stacks(i).getMethodName
+        if (!(methodName.equals(operation)||methodName.equals("cache")||methodName.equals("uncache")))
+          usefulTraces += i
+      }
+    sb.append(operation + " " +this.id)
+    usefulTraces.foreach(i => {
+      sb.append(" at ").append(stacks(i).getClassName
+        .substring(stacks(i).getClassName.lastIndexOf(".") + 1) + ".scala").
+        append(":").append(stacks(i).getLineNumber + " || ")
+    })
+    sb.append("\r\n" + "\r\n")
+    out.write(sb.toString)
+    out.close()
+  }
+  //end instrumentation code
+
   /**
    * Mark this RDD for persisting using the specified level.
    *
@@ -30,6 +59,9 @@ import java.io._
     val osw = new OutputStreamWriter(fos)
     osw.write("persist "+ this.id + "\r\n")
     osw.close()
+
+    writePerPos("persist", tracePath + appname + ".perpos")
+
     // end instrumentation code
     this
   }
@@ -54,6 +86,9 @@ import java.io._
     val osw = new OutputStreamWriter(fos)
     osw.write("unpersist "+ this.id + "\r\n")
     osw.close()
+
+    writePerPos("unpersist", tracePath + appname + ".perpos")
+    
     // end instrumentation code
     this
   }

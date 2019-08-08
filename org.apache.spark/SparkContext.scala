@@ -37,6 +37,92 @@ import java.io._
     }
     result
   }
+
+  
+  def writeRDDInfo(rdd: RDD[_], infoFilePath: String): Unit = {
+
+    val infoFile = new File(infoFilePath)
+    val rddIdIndex = new ArrayBuffer[Int]()
+    try {
+
+      // Read the rddInfoFile head
+      if (infoFile.exists) {
+        val header = new BufferedReader(new InputStreamReader(new FileInputStream(infoFile), "UTF-8"))
+        val fileHeader = header.readLine()
+        if (!((null == fileHeader) || fileHeader.equals(""))) {
+          val rddIdInHedaer = fileHeader.split(":").last.split(",")
+          rddIdInHedaer.foreach(rddId => {
+            rddIdIndex += rddId.toInt
+          })
+        }
+        header.close
+      } else
+        infoFile.createNewFile
+
+      // write new rdd info
+      val out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(infoFile,true), "UTF-8"))
+
+      def traverseChildren(rdd: RDD[_], outStream: BufferedWriter): Unit = {
+        val len = rdd.dependencies.length
+        len match{
+          case 0 => Seq.empty
+          case 1 =>
+            val childrdd = rdd.dependencies.head.rdd
+            val childrddid = childrdd.id
+            traverseChildren(childrdd, outStream)
+          case _ =>
+            val children = rdd.dependencies
+            children.foreach(child => {
+              traverseChildren(child.rdd, outStream)
+            })
+        }
+        if(!rddIdIndex.contains(rdd.id)) {
+          rddIdIndex += rdd.id
+          val fullcallsite = rdd.creationSite.longForm.split("\n")
+          outStream.write(s"$rdd" + " || ")
+          val sitelength = fullcallsite.length
+          if (sitelength > 2) {
+            for(i <- 2 until (sitelength - 1)) {
+              outStream.write("at " + fullcallsite(i) + " || ")
+            }
+          }
+          outStream.write("\r\n" + "\r\n")
+        }
+      }
+      traverseChildren(rdd, out)
+      out.flush
+      out.close
+
+      // Rewrite the header
+      val tmpFile = File.createTempFile(infoFilePath,".tmp")
+      val in = new BufferedReader(new InputStreamReader(new FileInputStream(infoFile), "UTF-8"))
+      val headerRewriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpFile, false), "UTF-8"))
+      var newHeader = new StringBuffer
+      rddIdIndex.foreach(rddId => newHeader.append(rddId + ","))
+      var tmpLine = ""
+      tmpLine = in.readLine()
+      if (null == tmpLine)
+        return ""
+      else {
+        headerRewriter.write("IDs:"+newHeader.toString + "\r\n")
+        if(tmpLine.startsWith("IDs"))
+          tmpLine = in.readLine()
+        while (null != tmpLine) {
+          headerRewriter.write(tmpLine + "\r\n")
+          tmpLine = in.readLine()
+        }
+      }
+      headerRewriter.flush()
+      headerRewriter.close()
+      in.close()
+      infoFile.delete()
+      tmpFile.renameTo(infoFile)
+    } catch {
+      case e: IOException => {
+        e.printStackTrace()
+      }
+    }
+  }
   // end instrumentation code
 
   /**
@@ -61,6 +147,9 @@ import java.io._
     // instrumentation code
     val appname = this.conf.get("spark.app.name")
     val tracePath: String = System.getProperty("user.dir") + "\\trace\\"
+
+    writeRDDInfo(rdd, tracePath + appname+".info")
+
     val traceFile: File = new File(tracePath + appname + ".trace")
     val jobFile: File = new File(tracePath + appname + ".job")
     val jobNum = getJobNums()
