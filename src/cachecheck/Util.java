@@ -188,7 +188,7 @@ public class Util {
 						report.put("up-"+id, "Lagging unpersist");
 					// If unpersist is before the first action, or before the last job, 
 					// it is a premature unpersist
-					else if(lastJobPos < 0 || actualPos < lastJobPos)
+					else if(lastJobPos < 0 || ((actualPos < lastJobPos) && (actualSequence.contains("persist "+id))))
 						report.put("up-"+id, "Premature unpersist");
 				}
 				break;
