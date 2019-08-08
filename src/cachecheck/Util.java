@@ -135,6 +135,17 @@ public class Util {
 		return result;
 	}
 	
+	private boolean isLastJob(int jobId, ArrayList<String> sequence) {
+		boolean result = false;
+		for(String event : sequence) {
+			if(event.equals("job "+jobId))
+				result = true;
+			else if(result)
+				return false;
+		}
+		return result;
+	}
+
 	public Map<String, String> detectBugs() throws Exception{
 		Map<String, String> report = new HashMap<String, String>();
 		if(correctSequence.size()==0) {
@@ -161,9 +172,12 @@ public class Util {
 				}
 				break;
 			case "unpersist":
-				if(!actualSequence.contains("unpersist "+id))
-					report.put("up-"+id, "No unpersist");
-				else {
+				// If the rdd is a no persist bug, no unpersist should not be a bug
+				if((!actualSequence.contains("unpersist "+id)) && actualSequence.contains("persist "+id)) {
+					// If the correct unpersist is after the last job, it is not a bug 
+					if(!isLastJob(nextJob, correctSequence)) 
+						report.put("up-"+id, "No unpersist");
+				} else {
 					int actualPos = actualSequence.indexOf("unpersist "+id);
 					int lastJobPos = actualSequence.indexOf("job " + lastJob);
 					int nextJobPos = actualSequence.indexOf("job " + nextJob);
