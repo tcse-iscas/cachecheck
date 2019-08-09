@@ -177,7 +177,7 @@ public class Util {
 					// If the correct unpersist is after the last job, it is not a bug 
 					if(!isLastJob(nextJob, correctSequence)) 
 						report.put("up-"+id, "No unpersist");
-				} else {
+				} else if(actualSequence.contains("unpersist "+id)) {
 					int actualPos = actualSequence.indexOf("unpersist "+id);
 					int lastJobPos = actualSequence.indexOf("job " + lastJob);
 					int nextJobPos = actualSequence.indexOf("job " + nextJob);
@@ -186,9 +186,9 @@ public class Util {
 					// because it is after the last job. This situation is not a bug.
 					if(actualPos > nextJobPos && nextJobPos > 0)
 						report.put("up-"+id, "Lagging unpersist");
-					// If unpersist is before the first action, or before the last job, 
+					// If unpersist is before the last job, 
 					// it is a premature unpersist
-					else if(lastJobPos < 0 || ((actualPos < lastJobPos) && (actualSequence.contains("persist "+id))))
+					else if(actualPos < lastJobPos)
 						report.put("up-"+id, "Premature unpersist");
 				}
 				break;
