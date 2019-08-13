@@ -115,8 +115,6 @@ public class Util {
 			for(int i=firstUse+1; i<jobNum; i++) {
 				DAG job = jobs.get(i);
 				if(job.hasVertex(rddsp)) {
-					if(!takeover)
-						lastUse = i;
 					@SuppressWarnings("unchecked")
 					ArrayList<Integer> otherRDDsp = (ArrayList<Integer>) rddshouldpersit.clone();
 					otherRDDsp.remove(rddsp);

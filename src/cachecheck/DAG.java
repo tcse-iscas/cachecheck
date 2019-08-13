@@ -106,10 +106,10 @@ public class DAG {
 		}else {
 			List<Vertex> parents = getParents(me);
 			for (Vertex parent : parents) {
-				if(!searchElder(parent, inheritors, elder))
-					return false;
+				if(searchElder(parent, inheritors, elder))
+					return true;
 			}
-			return true;
+			return false;
 		}
 	}
 }
