@@ -176,7 +176,7 @@ public class Util {
 				// If the rdd is a no persist bug, no unpersist should not be a bug
 				if((!actualSequence.contains("unpersist "+id)) && actualSequence.contains("persist "+id)) {
 					// If the correct unpersist is after the last job, it is not a bug 
-					if(!isLastJob(nextJob, correctSequence)) 
+					if(!isLastJob(nextJob, actualSequence)) 
 						report.put("up-"+id, "No unpersist");
 				} else if(actualSequence.contains("unpersist "+id)) {
 					int actualPos = actualSequence.indexOf("unpersist "+id);
