@@ -203,7 +203,7 @@ public class Util {
 			String[] array = event.split(" ");
 			String type = array[0];
 			int id = Integer.parseInt(array[1]);
-			if (!type.equals("job") && !rddshouldpersit.contains(id)) {
+			if (type.equals("persist") && !rddshouldpersit.contains(id)) {
 				report.put("p-"+id, "Unnecessary persist");
 			}
 		}
