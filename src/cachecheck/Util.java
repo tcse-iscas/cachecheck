@@ -129,7 +129,10 @@ public class Util {
 					}
 				}
 			}
-			result.add(result.indexOf("job "+ lastUse)+1, "unpersist "+rddsp);
+			if(takeover && !isLastJob(lastUse, actualSequence))
+				result.add(result.indexOf("job "+ (lastUse + 1)) + 1, "unpersist "+rddsp);
+			else
+				result.add(result.indexOf("job "+ lastUse)+1, "unpersist "+rddsp);
 		}
 		correctSequence = result;
 		return result;
