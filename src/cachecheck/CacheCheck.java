@@ -6,7 +6,10 @@ public class CacheCheck {
 
 	public static void main(String[] args) throws Exception {
 		String workspace = args[0];
+		int nameLength = args.length;
 		String appName = args[1];
+		for(int i = 2; i< nameLength; i++)
+			appName += " " + args[i];
 		String fileSeparator = "";
 		String os = System.getProperty("os.name");
 		if(os.toLowerCase().startsWith("win"))
