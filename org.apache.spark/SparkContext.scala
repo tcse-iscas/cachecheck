@@ -1,5 +1,6 @@
 
 import java.io._
+import scala.collection.mutable.{ArrayBuffer}
 
   // instrumentation code
   private def jobInfo(rdd: RDD[_]): String = {
@@ -148,6 +149,7 @@ import java.io._
     val appname = this.conf.get("spark.app.name")
     val tracePath: String = System.getProperty("user.dir") + "\\trace\\"
 
+    println("Trace dir: " + tracePath)
     writeRDDInfo(rdd, tracePath + appname+".info")
 
     val traceFile: File = new File(tracePath + appname + ".trace")

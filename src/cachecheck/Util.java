@@ -29,6 +29,7 @@ public class Util {
 		this.appName = appName;
 		// Read jobfile
 		File jobFile = new File(jobFilePath);
+		System.out.println("Job file: " + jobFilePath);
 		try {
 			FileInputStream fisJob = new FileInputStream(jobFile);
 			BufferedReader brJob = new BufferedReader(new InputStreamReader(fisJob));
@@ -41,6 +42,9 @@ public class Util {
 			fisJob.close();
 		} catch (IOException e) {
 			System.out.println("[ERROR] .job file error!");
+			System.out.println(jobFile.getAbsolutePath());
+			e.printStackTrace();
+			System.exit(0);
 		}
 		// generate job dag objects
 		for(int i = 0; i < jobs.size(); i++) {
@@ -55,6 +59,7 @@ public class Util {
 		
 		//read tracefile
 		File traceFile = new File(traceFilePath);
+		System.out.println("Trace file: " + traceFilePath);
 		try {
 			FileInputStream fisTrace = new FileInputStream(traceFile);
 			BufferedReader brTrace = new BufferedReader(new InputStreamReader(fisTrace));
@@ -66,6 +71,9 @@ public class Util {
 			fisTrace.close();
 		} catch (IOException e) {
 			System.out.println("[ERROR] .trace file error!");
+			System.out.println(traceFile.getAbsolutePath());
+			e.printStackTrace();
+			System.exit(0);
 		}
 	}
 	
@@ -111,25 +119,18 @@ public class Util {
 		for(Integer rddsp: rddshouldpersit) {
 			int firstUse = useCondition.get(rddsp);
 			int lastUse = firstUse;
-			boolean takeover = false;
-			for(int i=firstUse+1; i<jobNum; i++) {
+			ArrayList<Integer> childrenSPrdd = new ArrayList<Integer>();
+			for(int i=firstUse; i<jobNum; i++) {
 				DAG job = jobs.get(i);
 				if(job.hasVertex(rddsp)) {
 					@SuppressWarnings("unchecked")
 					ArrayList<Integer> otherRDDsp = (ArrayList<Integer>) rddshouldpersit.clone();
 					otherRDDsp.remove(rddsp);
-					boolean thisUse = !job.isTakeOver(otherRDDsp, rddsp);
-					if(thisUse) {
-						takeover = false;
+					boolean thisUse = job.isUsed(otherRDDsp, childrenSPrdd, rddsp);
+					if(thisUse)
 						lastUse = i;
-					} else {
-						takeover = true;
-					}
 				}
 			}
-			if(takeover && !isLastJob(lastUse, actualSequence))
-				result.add(result.indexOf("job "+ (lastUse + 1)) + 1, "unpersist "+rddsp);
-			else
 				result.add(result.indexOf("job "+ lastUse)+1, "unpersist "+rddsp);
 		}
 		correctSequence = result;
@@ -146,7 +147,7 @@ public class Util {
 		}
 		return result;
 	}
-
+	
 	public Map<String, String> detectBugs() throws Exception{
 		Map<String, String> report = new HashMap<String, String>();
 		if(correctSequence.size()==0) {
@@ -176,7 +177,7 @@ public class Util {
 				// If the rdd is a no persist bug, no unpersist should not be a bug
 				if((!actualSequence.contains("unpersist "+id)) && actualSequence.contains("persist "+id)) {
 					// If the correct unpersist is after the last job, it is not a bug 
-					if(!isLastJob(nextJob, actualSequence)) 
+					if(!isLastJob(lastJob, actualSequence)) 
 						report.put("up-"+id, "No unpersist");
 				} else if(actualSequence.contains("unpersist "+id)) {
 					int actualPos = actualSequence.indexOf("unpersist "+id);
@@ -187,7 +188,7 @@ public class Util {
 					// because it is after the last job. This situation is not a bug.
 					if(actualPos > nextJobPos && nextJobPos > 0)
 						report.put("up-"+id, "Lagging unpersist");
-					// If unpersist is before the last job, 
+					// If unpersist is before before the last job, 
 					// it is a premature unpersist
 					else if(actualPos < lastJobPos)
 						report.put("up-"+id, "Premature unpersist");

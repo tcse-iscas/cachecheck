@@ -5,6 +5,7 @@ import java.util.ArrayList;
 public class CacheCheck {
 
 	public static void main(String[] args) throws Exception {
+		// TODO Auto-generated method stub
 		String workspace = args[0];
 		int nameLength = args.length;
 		String appName = args[1];
@@ -16,6 +17,8 @@ public class CacheCheck {
 			fileSeparator = "\\";
 		else
 			fileSeparator = "/";
+		//String workspace = "E:\\Workspaces\\trace\\trace&report0813#2\\graphx";
+		//String appName = "ConnectedComponentsExample$";
 		String traceFilePath = workspace+fileSeparator+appName+".trace";
 		String jobFilePath = workspace+fileSeparator+appName+".job";
 		System.out.println("Begin to read job & trace file.");

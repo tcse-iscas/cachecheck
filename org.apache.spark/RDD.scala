@@ -52,6 +52,8 @@ import java.io._
     // instrumentation code
     val appname = this.conf.get("spark.app.name")
     val tracePath: String = System.getProperty("user.dir") + "\\trace\\"
+
+    println("Trace dir: " + tracePath)
     val traceFile: File = new File(tracePath + appname + ".trace")
     if(!traceFile.exists())
       traceFile.createNewFile()

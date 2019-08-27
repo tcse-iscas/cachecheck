@@ -5,16 +5,20 @@ The tool of checking persist/unpersist misuse in Spark.
 Four steps to use CacheCheck:
 
 ### 1. Instrument some code into Spark source code.
-1. Replace the persist(newLevel: StorageLevel, allowOverride: Boolean) and unpersist(blocking: Boolean = true) functions in RDD.scala.
-2. Add jobInfo(rdd: RDD[_]) and getJobNums() functions to SparkContext.scala. Replace 
+1. Add writePerPos(operation: String, perposfile: String) function to RDD.scala. 
+  Replace the persist(newLevel: StorageLevel, allowOverride: Boolean) and unpersist(blocking: Boolean = true) functions in RDD.scala.
+  Add related imports into the file.
+2. Add jobInfo(rdd: RDD[_]), getJobNums() and writeRDDInfo(rdd: RDD[_], infoFilePath: String) functions to SparkContext.scala. 
+  Replace 
     runJob[T, U: ClassTag](
       rdd: RDD[T],
       func: (TaskContext, Iterator[T]) =     U,
       partitions: Seq[Int],
       resultHandler: (Int, U) =     Unit)
     function in SparkContext.scala.
+  Add related import into the file.
 
-### 2. Create a "trace" directory in spark root path. 
+### 2. Create a "trace" directory in the application workspace path. 
 The trace file and job info file will be in this dir.
 
 ### 3. Run the Spark application. 

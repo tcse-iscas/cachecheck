@@ -92,16 +92,22 @@ public class DAG {
 		return vertexMap.keySet().toArray(new Integer[vertexMap.size()]);
 	}
 	
-	public boolean isTakeOver(ArrayList<Integer> decendants, int elder) throws Exception {
+	public boolean isUsed(ArrayList<Integer> decendants, ArrayList<Integer> childrenSPRDD, int elder) throws Exception {
 		if(!vertexMap.containsKey(elder))
 			throw new Exception("This job does not has rdd: " + elder);
-		return !searchElder(youngest, decendants, elder);
+		boolean result = searchElder(youngest, childrenSPRDD, elder); 
+		for(int decendant: decendants) {
+			if(hasVertex(decendant) && !childrenSPRDD.contains(decendant))
+				childrenSPRDD.add(decendant);
+		}
+		return result;
 	}
 	
 	private boolean searchElder(Vertex me, ArrayList<Integer> inheritors, int elder) {
-		if(me.vid==elder)
+		int vid = me.vid;
+		if(vid==elder)
 			return true;
-		else if(inheritors.contains(me.vid)){
+		else if(inheritors.contains(vid)){
 			return false;
 		}else {
 			List<Vertex> parents = getParents(me);
