@@ -10,15 +10,13 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.Map.Entry;
 
 public class Util {
 	ArrayList<DAG> jobs;
 	private ArrayList<Integer> rddshouldpersit;
 	private ArrayList<String> actualSequence;
 	private ArrayList<String> correctSequence;
-	private Map<String, String> detectionReport;
+	private ArrayList<Bug> detectionReport;
 	private String appName = "default";
 	
 	public Util(String traceFilePath, String jobFilePath, String appName) {
@@ -148,8 +146,8 @@ public class Util {
 		return result;
 	}
 	
-	public Map<String, String> detectBugs() throws Exception{
-		Map<String, String> report = new HashMap<String, String>();
+	public ArrayList<Bug> detectBugs() throws Exception{
+		ArrayList<Bug> report = new ArrayList<Bug>();
 		if(correctSequence.size()==0) {
 			System.out.println("Generate correct sequence first please!");
 			return report;
@@ -163,14 +161,14 @@ public class Util {
 			switch (type) {
 			case "persist":
 				if(!actualSequence.contains("persist "+id))
-					report.put("p-"+id, "No persist");
+					report.add(new Bug(id, Pattern.MissingPerssit, ""));
 				else {
 					int actualPos = actualSequence.indexOf("persist "+id);
 					int nextJobPos = actualSequence.indexOf("job " + nextJob);
 					// If persist is after the next job, it is a lagging persist.
 					// nextJobPos can be -1, which means it is the last job.
 					if (actualPos > nextJobPos)
-						report.put("p-"+id, "Lagging persist");
+						report.add(new Bug(id, Pattern.LaggingPersist, ""));
 				}
 				break;
 			case "unpersist":
@@ -178,7 +176,7 @@ public class Util {
 				if((!actualSequence.contains("unpersist "+id)) && actualSequence.contains("persist "+id)) {
 					// If the correct unpersist is after the last job, it is not a bug 
 					if(!isLastJob(lastJob, actualSequence)) 
-						report.put("up-"+id, "No unpersist");
+						report.add(new Bug(id, Pattern.MissingUnpersist, ""));
 				} else if(actualSequence.contains("unpersist "+id)) {
 					int actualPos = actualSequence.indexOf("unpersist "+id);
 					int lastJobPos = actualSequence.indexOf("job " + lastJob);
@@ -187,11 +185,11 @@ public class Util {
 					// The next job can be non-existent (nextJobPos == -1),
 					// because it is after the last job. This situation is not a bug.
 					if(actualPos > nextJobPos && nextJobPos > 0)
-						report.put("up-"+id, "Lagging unpersist");
+						report.add(new Bug(id, Pattern.LaggingUnpersist, ""));
 					// If unpersist is before before the last job, 
 					// it is a premature unpersist
 					else if(actualPos < lastJobPos)
-						report.put("up-"+id, "Premature unpersist");
+						report.add(new Bug(id, Pattern.PrematureUnpersist, ""));
 				}
 				break;
 			case "job":
@@ -206,7 +204,7 @@ public class Util {
 			String type = array[0];
 			int id = Integer.parseInt(array[1]);
 			if (type.equals("persist") && !rddshouldpersit.contains(id)) {
-				report.put("p-"+id, "Unnecessary persist");
+				report.add(new Bug(id, Pattern.UnnecessaryPersist, ""));
 			}
 		}
 		detectionReport = report;
@@ -218,9 +216,8 @@ public class Util {
 			System.out.println("Run detection process first please!");
 			return;
 		}
-		for(Entry<String, String> entry: detectionReport.entrySet()) {
-			int id = Integer.parseInt(entry.getKey().split("-")[1]);
-			String bug = entry.getValue();
+		for(Bug bug: detectionReport) {
+			int id = bug.rddID;
 			System.out.println("Bug: [" + bug + "] for RDD " + id);
 		}
 	}
@@ -240,9 +237,8 @@ public class Util {
 			reportFile.createNewFile();
 			FileOutputStream fos = new FileOutputStream(reportFile);
 			OutputStreamWriter osw = new OutputStreamWriter(fos);
-			for(Entry<String, String> entry: detectionReport.entrySet()) {
-				int id = Integer.parseInt(entry.getKey().split("-")[1]);
-				String bug = entry.getValue();
+			for(Bug bug: detectionReport) {
+				int id = bug.rddID;
 				osw.write("Bug: [" + bug + "] for RDD " + id + "\r\n");
 			}
 			osw.close();
