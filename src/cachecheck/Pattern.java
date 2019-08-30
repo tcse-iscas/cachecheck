@@ -16,4 +16,8 @@ public enum Pattern {
 	public String toString() {
 		return this.patternType;
 	}
+	
+	public boolean equals(Pattern pattern) {
+		return patternType.equals(pattern.patternType);
+	}
 }

@@ -17,10 +17,11 @@ public class CacheCheck {
 			fileSeparator = "\\";
 		else
 			fileSeparator = "/";
-		//String workspace = "E:\\Workspaces\\trace\\trace&report0813#2\\graphx";
-		//String appName = "ConnectedComponentsExample$";
-		String traceFilePath = workspace+fileSeparator+appName+".trace";
-		String jobFilePath = workspace+fileSeparator+appName+".job";
+		//String workspace = "E:\\Workspaces\\trace\\trace&report0815\\ml";
+		//String appName = "GradientBoostedTreeClassifierExample";
+		String filePath = workspace+fileSeparator+appName;
+		String traceFilePath = filePath+".trace";
+		String jobFilePath = filePath+".job";
 		System.out.println("Begin to read job & trace file.");
 		Util util = new Util(traceFilePath, jobFilePath, appName);
 		System.out.println("Read job & trace file done.");
@@ -57,12 +58,15 @@ public class CacheCheck {
 		System.out.println("");
 		
 		System.out.println("Begin to detect bugs by comparing correct sequence with actual sequence.");
-		util.detectBugs();
+		ArrayList<Bug> report = util.detectBugs();
 		System.out.println("Bug detection done!");
 		System.out.println("Bugs:");
-		util.printDetectionReport();
+		util.printDetectionReport(report);
 		System.out.println("Saving bug report to " + workspace+fileSeparator+appName+".report");
-		util.saveReport(workspace+fileSeparator);
+		util.saveReport(workspace+fileSeparator, report);
+		System.out.println("Duplication...");
+		report = util.deduplication(filePath+".perpos", filePath+".info", report);
+		util.printDetectionReport(report);
 		System.out.println("Finished.");
 	}
 

@@ -10,4 +10,15 @@ public class Bug {
 		this.pattern = bugPattern;
 		this.location = bugLocation;
 	}
+	
+	public boolean isSame(Bug anotherBug) {
+		return (this.pattern.equals(anotherBug.pattern)) 
+				&& (this.location.equals(anotherBug.location));
+	}
+	
+	public Bug setLocation(String bugLocation) {
+		if(location.equals(""))
+			location = bugLocation;
+		return this;
+	}
 }

@@ -10,13 +10,13 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 public class Util {
 	ArrayList<DAG> jobs;
 	private ArrayList<Integer> rddshouldpersit;
 	private ArrayList<String> actualSequence;
 	private ArrayList<String> correctSequence;
-	private ArrayList<Bug> detectionReport;
 	private String appName = "default";
 	
 	public Util(String traceFilePath, String jobFilePath, String appName) {
@@ -207,23 +207,22 @@ public class Util {
 				report.add(new Bug(id, Pattern.UnnecessaryPersist, ""));
 			}
 		}
-		detectionReport = report;
 		return report;
 	}
 	
-	public void printDetectionReport() throws Exception{
-		if(null == detectionReport) {
+	public void printDetectionReport(ArrayList<Bug> report) throws Exception{
+		if(null == report) {
 			System.out.println("Run detection process first please!");
 			return;
 		}
-		for(Bug bug: detectionReport) {
+		for(Bug bug: report) {
 			int id = bug.rddID;
-			System.out.println("Bug: [" + bug + "] for RDD " + id);
+			System.out.println("Bug: [" + bug.pattern + "] for RDD " + id);
 		}
 	}
 	
-	public void saveReport(String path) throws IOException {
-		if(null == detectionReport) {
+	public void saveReport(String path, ArrayList<Bug> report) throws IOException {
+		if(null == report) {
 			System.out.println("Run detection process first please!");
 			return;
 		}
@@ -237,14 +236,107 @@ public class Util {
 			reportFile.createNewFile();
 			FileOutputStream fos = new FileOutputStream(reportFile);
 			OutputStreamWriter osw = new OutputStreamWriter(fos);
-			for(Bug bug: detectionReport) {
+			for(Bug bug: report) {
 				int id = bug.rddID;
-				osw.write("Bug: [" + bug + "] for RDD " + id + "\r\n");
+				osw.write("Bug: [" + bug.pattern + "] for RDD " + id + "\r\n");
 			}
 			osw.close();
 			fos.close();
 		} else {
 			System.out.println("Path must be the directory!");
 		}
+	}
+	
+	public ArrayList<Bug> deduplication(String perposFile, String rddinfoFile, ArrayList<Bug> report) throws Exception {
+		ArrayList<Bug> result = new ArrayList<Bug>();
+		Map<Integer, String> perpos = new HashMap<Integer, String>();
+		Map<Integer, String> unperpos = new HashMap<Integer, String>();
+		Map<Integer, String> rddinfo = new HashMap<Integer, String>();
+		// Read perposFile
+		File perFile = new File(perposFile);
+		System.out.println("Perpos file: " + perposFile);
+		try {
+			FileInputStream fisPer = new FileInputStream(perFile);
+			BufferedReader brPer = new BufferedReader(new InputStreamReader(fisPer));
+			String perString;
+			while((perString = brPer.readLine())!=null) {
+				String[] pers = perString.split(" ");
+				int persLength = pers.length;
+				if(persLength <= 1)
+					continue;
+				String poString = "";
+				for(int i = 2; i<persLength; i+=3) {
+					poString+=pers[i];
+				}
+				if(pers[0].equals("persist"))
+					perpos.put(Integer.parseInt(pers[1]), poString);
+				else if (pers[0].equals("unpersist"))
+					unperpos.put(Integer.parseInt(pers[1]), poString);
+			}
+			brPer.close();
+			fisPer.close();
+		} catch (IOException e) {
+			System.out.println("[ERROR] .perpos file error!");
+			e.printStackTrace();
+			System.exit(0);
+		}
+		// Read rddinfoFile
+		File infoFile = new File(rddinfoFile);
+		System.out.println("RDDInfo file: " + rddinfoFile);
+		try {
+			FileInputStream fisInfo = new FileInputStream(infoFile);
+			BufferedReader brInfo = new BufferedReader(new InputStreamReader(fisInfo));
+			String rddString;
+			brInfo.readLine();// The first line is the ID sequence of RDDs.
+			while((rddString = brInfo.readLine())!=null) {
+				String[] infos = rddString.split(" ");
+				int infoLength = infos.length;
+				if(infoLength <= 1)
+					continue;
+				String infoString = "";
+				for(int i=4;i<infoLength;i+=3) {
+					infoString+=infos[i];
+				}
+				int ID = Integer.parseInt(infos[0].substring(infos[0].indexOf("[")+1, infos[0].indexOf("]")));
+				rddinfo.put(ID, infoString);
+			}
+			brInfo.close();
+			fisInfo.close();
+		} catch (Exception e) {
+			System.out.println("[ERROR] .info file error!");
+			e.printStackTrace();
+			System.exit(0);
+		}
+		// Reverse bug reports
+		for(Bug bug: report) {
+			String location;
+			switch (bug.pattern) {
+			case MissingPerssit:
+			case MissingUnpersist:
+				location = rddinfo.get(bug.rddID);
+				break;
+			case LaggingPersist:
+			case UnnecessaryPersist:
+				location = perpos.get(bug.rddID);
+				break;
+			case PrematureUnpersist:
+			case LaggingUnpersist:
+				location = unperpos.get(bug.rddID);
+				break;
+			default:
+				throw new Exception("Unknown pattern!");
+			}
+			bug.setLocation(location);
+			boolean newBug = true;
+			for(Bug anotherBug: result) {
+				if (bug.isSame(anotherBug)) {
+					newBug = false;
+					break;
+				}
+			}
+			if(newBug)
+				result.add(bug);
+		}
+		return result;
 	}
 }
