@@ -1,0 +1,11 @@
+core/target/*
+tools/target/*
+.settings/*
+.project
+.classpath
+core/.settings/*
+core/.project
+core/.classpath
+tools/.settings/*
+tools/.project
+tools/.classpath
