@@ -55,8 +55,8 @@ public class ExampleRunner
      * @param process
      */
     private static void readProcessOutput(final Process process) {
-        read(process.getInputStream(), System.out);
         read(process.getErrorStream(), System.err);
+        read(process.getInputStream(), System.out);
     }
 
     /**
