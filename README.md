@@ -1,62 +1,60 @@
-# cachecheck
+# CacheCheck
 
-The tool of checking persist/unpersist misuse in Spark.
+## Overview
+CacheCheck can effectively detect cache-related bugs in Spark applications.
+See paper [CacheCheck]() to learn more details.
 
-Four steps to use CacheCheck:
+## Run CacheCheck
+## 1. Build CacheCheck
+Enter the main directory, and build it by 
+```bash
+mvn package -DskipTests
+``` 
+A runnable jar file "core-1.0-SNAPSHOT.jar" is generated under `core/target/`.
+## 2. Instrument Spark
+The trace collection code (i.e., the modification to Spark) is located in `instrument/`. Specially, the trace collection code starts with the comment "`// Start trace collection in CacheCheck`", and ends with the comment "`// End trace collection in CacheCheck`". 
+First, you need to replace `$SPARK_HOME/core/src/main/scala/org/apache/spark/rdd/RDD.scala` with `cachecheck/core/instrument/RDD.scala` and `$SPARK_HOME/core/src/main/scala/org/apache/spark/SparkContext.scala` with `cachecheck/core/instrument/SparkContext.scala`.  
 
-### 1. Instrument some code into Spark source code.
-1. Add writePerPos(operation: String, perposfile: String) function to RDD.scala. 
-  Replace the persist(newLevel: StorageLevel, allowOverride: Boolean) and unpersist(blocking: Boolean = true) functions in RDD.scala.
-  Add related imports into the file.
-2. Add jobInfo(rdd: RDD[_]), getJobNums() and writeRDDInfo(rdd: RDD[_], infoFilePath: String) functions to SparkContext.scala. 
-  Replace 
-    runJob[T, U: ClassTag](
-      rdd: RDD[T],
-      func: (TaskContext, Iterator[T]) =     U,
-      partitions: Seq[Int],
-      resultHandler: (Int, U) =     Unit)
-    function in SparkContext.scala.
-  Add related import into the file.
+We use Spark-2.4.3 in our experiment. If you want to run on other versions, you'd better to manually add the instrumented code in the comment blocks, since directly replacing files may be incompatiable.
 
-### 2. Create a "trace" directory in the application workspace path. 
-The trace file and job info file will be in this dir.
+Then, you can build a Spark with the trace collection by running the command in `$SPARK_HOME/`: 
+```bash
+mvn package -DskipTests
+```
+## 3. Run the Case
+In our experiment, we use Spark's build-in examples as the cases. Taking SparkPi as the example, it can run by the command 
+```bash
+$SPARK_HOME/bin/run-example SparkPi
+```
+When Spark finishes the work, all the traces are stored in four kinds of intermediate files in `$SPARK_HOME/trace/`.  
+## 4. Perform Detection
+The detection is performed by 
+```bash
+java -jar cachecheck/core/target/core-1.0-SNAPSHOT.jar $TraceDir $AppName [-d]
+```
+`$TraceDir` is the directory that stores traces, i.e., `$SPARK_HOME/trace/`. `$AppName` is the name of the application, which is usually set in the application code. It is also the file name of the intermediate files got in step 3. For SparkPi, its application name is `Spark Pi`. `-d` is an option about debug mode. In default, CacheCheck delete all intermediate files after detection. If you want keep them, add `-d` please.  
+After the detection, a bug report, named `$AppName.report`, is generated  in `$SPARK_HOME/trace/`.
+If you add `-d`, the bug report will be `$AppName.report`. It has more information for inspecting the bug.
 
-### 3. Run the Spark application. 
-Two files will created in trace directory. 
-If you want to rerun the same example, please delete these two files first!
+## **Code Structure**
+CacheCheck mainly has two modules, i.e., `core` and `tools`. `core` module realizes the algorithms and the approach introduced in our paper. `tools` module provides three tools, i.e., `ExampleRunner`, `CachecheckRunner`, and `Deduplicator` for easy and automatic detection. After [Build Cachecheck](#1-build-cachecheck), three runnable jars are generated under `cachecheck/tools/traget/`. They are `tools-examplerunner.jar`, `tools-cachecheckrunner.jar`, and `tools-deduplicator.jar`.  
+ExampleRunner can automatically run Spark's build-in examples. It requires a configuration file, which is also introduced in [One-Click for Running](#one-click-for-running), to denote which examples to be run. The command is 
+```bash
+java -jar cachecheck/tools/target/tools-examplerunner.jar $ExampleList $SparkDir
+```
+`$ExampleList` is the path of the configuration file. `$SparkDir` is the base directory of Spark, e.g., `$SPARK_HOME`.
 
-### 4. Run cachecheck.jar for detecting bugs.
-The first argument is the path of trace directory. The second one is the name of the application.
->java -jar cachecheck.jar E:\\Workspaces\\idea\\spark-2.4.3\\trace ConnectedComponentsExample$
+CacheCheckRunner can automatically analyze all the traces under the same directory and get the bug reports. The command is 
+```bash
+java -jar cachecheck/tools/target/tools-cachecheckrunner.jar  $TraceDir
+```
+`$TraceDir` is the diretocry that traces locate in, e.g., `$SPARK_HOME/trace`.
 
-Finally, if you can see these information on screen, the tool runs successfully:
-
-    Begin to read job & trace file.
-    Read job & trace file done.
-    Jobs:
-    0,1,2,
-    0,1,2,5,6,7,8,11,13,15,17,19,20,21,23,24,25,27,28,29,31,
-    0,1,2,5,6,7,8,11,13,15,17,19,20,21,23,24,25,27,28,29,32,34,36,37,38,40,41,42,44,45,46,48,
-    0,1,2,5,6,7,8,11,13,15,17,19,20,21,23,24,25,27,28,29,32,33,49,50,51,52,53,54,55,
-    Actual trace:
-    persist 2,job 0,persist 2,persist 11,persist 13,persist 11,persist 15,persist 21,persist 15,persist 29,job 1,persist 15,persist 32,persist 38,persist 32,persist 46,job 2,unpersist 29,unpersist 15,unpersist 21,unpersist 29,unpersist 46,unpersist 11,unpersist 13,job 3,
-    Begin to calculate RDDs which should be persisted.
-    RDDs should be persisted:
-    2,15,25,29,32,
-    Begin to generate correct sequence.
-    Correct sequence:
-    persist 2,job 0,persist 15,persist 25,persist 29,job 1,unpersist 2,persist 32,job 2,unpersist 29,unpersist 25,unpersist 15,job 3,unpersist 32,
-    Begin to detect bugs by comparing correct sequence with actual sequence.
-    Bug detection done!
-    Bugs:
-    Bug: [No unpersist] for RDD 25
-    Bug: [Unnecessary persist] for RDD 38
-    Bug: [No persist] for RDD 25
-    Bug: [No unpersist] for RDD 32
-    Bug: [No unpersist] for RDD 2
-    Bug: [Unnecessary persist] for RDD 13
-    Bug: [Unnecessary persist] for RDD 46
-    Bug: [Unnecessary persist] for RDD 11
-    Bug: [Unnecessary persist] for RDD 21
-    Saving bug report to E:\\Workspaces\\idea\\spark-2.4.3\\trace\ConnectedComponentsExample$.report
-    Finished.
+Deduplicator can collect all the bug reports under the same directory, make deduplication and generate a summary bug report. The command is 
+```bash
+java -jar cachecheck/tools/target/tools-deduplicator.jar  $ReportDir
+``` 
+`$ReportDir` is the directory storing bug reports. When finishing, Deduplicator will generate a `summary.report` file under the same directory.
+***
+## **NOTE**
+All bugs we detected and their issue links can be found in [CacheCheck List](https://cachecheck.github.io/).
