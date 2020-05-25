@@ -35,7 +35,7 @@ In our paper, we mainly ran examples in GraphX, MLLib, and Spark SQL. They can a
 ```bash
 $SPARK_HOME/bin/run-example graphx.ConnectedComponentsExample
 ```  
-Considering there are too many examples to run, we provide some one-click tools for easy configuration and execution. See details in [Code Structur](#code-structure).  
+Considering there are too many examples to run, we provide some one-click tools for easy configuration and execution. See details in [Code Structure](#code-structure).  
 ## 4. Perform Detection
 The detection is performed by 
 ```bash
