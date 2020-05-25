@@ -76,7 +76,7 @@ java -jar cachecheck/tools/target/tools-deduplicator.jar  $ReportDir
     <th>Project</th>
     <th>Issue ID</th>
     <th>Bug type</th>
-    <th>Location</th>
+    <th wdith="50%">Location</th>
     <th>Related RDD variable</th>
     <th>Status</th>
     <th>Fixed</th>
