@@ -68,5 +68,3 @@ java -jar cachecheck/tools/target/tools-deduplicator.jar  $ReportDir
 ``` 
 `$ReportDir` is the directory storing bug reports. When finishing, Deduplicator will generate a `summary.report` file under the same directory.
 ***
-## **NOTE**
-All bugs we detected and their issue links can be found in [CacheCheck List](https://cachecheck.github.io/).
