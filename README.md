@@ -70,54 +70,6 @@ java -jar cachecheck/tools/target/tools-deduplicator.jar  $ReportDir
 ***
 
 ## **3. Detected Unknown bugs**
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js">
-    window.onload=function(){
-        console.log("begin!");
-        $.ajax({
-            type:"get",
-            url:"./statistics",
-            data:{},
-            async: false,
-            success:function (data) {
-                //console.log(data);
-                var rows = data.split("\n");
-                //console.log("data num:" + rows.length);
-                for(var i=0;i < rows.length;i++){
-                    var x=document.getElementById('data').insertRow();
-                    var row = rows[i];
-                    var values = row.split("\t");
-                    if(values.length > 1) {
-                        var cell=x.insertCell();
-                        cell.innerHTML = i + 1;
-                        for(var j=0;j < values.length;j++){
-                            //console.log("value num:" + values.length);
-                            var value = values[j];
-                            cell=x.insertCell();
-                            if(j == 1 && value.indexOf("http") > -1) {
-                                //console.log("http index value:" + value.indexOf("http"));
-                                    var link, issueName;
-                                    if (value.indexOf(",") > 0) {
-                                        link = value.split(",")[0];
-                                        issueName = value.split(",")[1];
-                                    } else {
-                                        link = value;
-                                        issueName = value.substr(value.lastIndexOf("/")+1);
-                                    }
-                                    //console.log("link:" + link + " issueName:"+ issueName);
-                                    //cell.innerHTML = $("<a href=\"" + link + "\">" + issueName + "</a>").html();
-                                    var htmlString = "<a href=\"" + link + "\">" + issueName + "</a>";
-                                    console.log("htmlString:"+htmlString);
-                                    cell.innerHTML = htmlString;
-                            } else {
-                                cell.innerHTML=values[j];}
-                        }
-                    }
-                }
-           }
-        });
-        console.log("end!");
-    }
-</script>
 <table>
   <tbody><tr>
     <th>ID</th>
