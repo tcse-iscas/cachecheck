@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>**CacheCheck**</title>
+        <style>
+</style>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css" integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+        <link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <style>
+.task-list-item { list-style-type: none; } .task-list-item-checkbox { margin-left: -20px; vertical-align: middle; }
+</style>
+        <style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        
+        <script src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+        
+    </head>
+    <body class="vscode-light">
+        <h1 id="cachecheck"><strong>CacheCheck</strong></h1>
+<p>CacheCheck can effectively detect cache-related bugs in Spark applications.
+See paper <a href="http://www.tcse.cn/~wsdou/papers/2020-issta-cachecheck.pdf">CacheCheck</a> to learn more details.</p>
+<h2 id="1-run-cachecheck"><strong>1. Run CacheCheck</strong></h2>
+<h4 id="11-build-cachecheck">1.1 Build CacheCheck</h4>
+<p>Enter the main directory, and build it by</p>
+<pre><code class="language-bash"><div>mvn package -DskipTests
+</div></code></pre>
+<p>A runnable jar file &quot;core-1.0-SNAPSHOT.jar&quot; is generated under <code>core/target/</code>.</p>
+<h4 id="12-instrument-spark">1.2 Instrument Spark</h4>
+<p>The trace collection code (i.e., the modification to Spark) is located in <code>instrument/</code>. Specially, the trace collection code starts with the comment &quot;<code>// Start trace collection in CacheCheck</code>&quot;, and ends with the comment &quot;<code>// End trace collection in CacheCheck</code>&quot;.
+First, you need to replace <code>$SPARK_HOME/core/src/main/scala/org/apache/spark/rdd/RDD.scala</code> with <code>cachecheck/core/instrument/RDD.scala</code> and <code>$SPARK_HOME/core/src/main/scala/org/apache/spark/SparkContext.scala</code> with <code>cachecheck/core/instrument/SparkContext.scala</code>.</p>
+<p>We use Spark-2.4.3 in our experiment. If you want to run on other versions, you'd better to manually add the instrumented code in the comment blocks, since directly replacing files may be incompatiable.</p>
+<p>Then, you can build a Spark with the trace collection by running the command in <code>$SPARK_HOME/</code>:</p>
+<pre><code class="language-bash"><div>mvn package -DskipTests
+</div></code></pre>
+<h4 id="13-collect-traces">1.3 Collect Traces</h4>
+<p>While the application runs on Spark, the instrumented code can collect traces and store them in <code>$SPARK_HOME/trace/</code>.
+In our experiment, we use Spark's build-in examples and six word count examples to drive Spark running.
+Taking SparkPi as the example, it can run by the command</p>
+<pre><code class="language-bash"><div><span class="hljs-variable">$SPARK_HOME</span>/bin/run-example SparkPi
+</div></code></pre>
+<p>We provide six word count examples in directory <code>wordcount</code>. You can add the whole directory in <code>SPARK_HOME/examples/src/main/scala/org/apache/spark/examples</code>, and then compile example module, and run the similar command, such as</p>
+<pre><code class="language-bash"><div><span class="hljs-variable">$SPARK_HOME</span>/bin/run-example wordcount.MissingPersist
+</div></code></pre>
+<p>In our paper, we mainly ran examples in GraphX, MLLib, and Spark SQL. They can also be run by similar command, such as</p>
+<pre><code class="language-bash"><div><span class="hljs-variable">$SPARK_HOME</span>/bin/run-example graphx.ConnectedComponentsExample
+</div></code></pre>
+<p>Considering there are too many examples to run, we provide some one-click tools for easy configuration and execution. See details in <a href="#code-structure">Code Structure</a>.</p>
+<h4 id="14-perform-detection">1.4 Perform Detection</h4>
+<p>The detection is performed by</p>
+<pre><code class="language-bash"><div>java -jar cachecheck/core/target/core-1.0-SNAPSHOT.jar <span class="hljs-variable">$TraceDir</span> <span class="hljs-variable">$AppName</span> [-d]
+</div></code></pre>
+<p><code>$TraceDir</code> is the directory that stores traces, i.e., <code>$SPARK_HOME/trace/</code>. <code>$AppName</code> is the name of the application, which is usually set in the application code. It is also the file name of the intermediate files got in step 3. For SparkPi, its application name is <code>Spark Pi</code>. <code>-d</code> is an option about debug mode. In default, CacheCheck delete all intermediate files after detection. If you want keep them, add <code>-d</code> please.<br>
+After the detection, a bug report, named <code>$AppName.report</code>, is generated  in <code>$SPARK_HOME/trace/</code>.
+If you add <code>-d</code>, the bug report will be <code>$AppName.report</code>. It has more information for inspecting the bug.</p>
+<h2 id="2-code-structure"><strong>2. Code Structure</strong></h2>
+<p>CacheCheck mainly has two modules, i.e., <code>core</code> and <code>tools</code>. <code>core</code> module realizes the algorithms and the approach introduced in our paper. <code>tools</code> module provides three tools, i.e., <code>ExampleRunner</code>, <code>CachecheckRunner</code>, and <code>Deduplicator</code> for easy and automatic detection. After <a href="#1-build-cachecheck">Build Cachecheck</a>, three runnable jars are generated under <code>cachecheck/tools/traget/</code>. They are <code>tools-examplerunner.jar</code>, <code>tools-cachecheckrunner.jar</code>, and <code>tools-deduplicator.jar</code>.</p>
+<h4 id="21-examplerunner">2.1 ExampleRunner</h4>
+<p>ExampleRunner can automatically run Spark's build-in examples. It requires a configuration file, which is a xml file just like <code>example-list-all.xml</code> in <code>cachecheck/tools/resource</code>. In this file, you can denote which examples to run.<br>
+The execution command is</p>
+<pre><code class="language-bash"><div>java -jar cachecheck/tools/target/tools-examplerunner.jar <span class="hljs-variable">$ExampleList</span> <span class="hljs-variable">$SparkDir</span>
+</div></code></pre>
+<p><code>$ExampleList</code> is the path of the configuration file. <code>$SparkDir</code> is the base directory of Spark, e.g., <code>$SPARK_HOME</code>.</p>
+<h4 id="22-cachecheckrunner">2.2 CacheCheckRunner</h4>
+<p>CacheCheckRunner can automatically analyze all the traces under the same directory and get the bug reports.<br>
+The execution command is</p>
+<pre><code class="language-bash"><div>java -jar cachecheck/tools/target/tools-cachecheckrunner.jar  <span class="hljs-variable">$TraceDir</span>
+</div></code></pre>
+<p><code>$TraceDir</code> is the diretocry that traces locate in, e.g., <code>$SPARK_HOME/trace</code>.</p>
+<h4 id="23-deduplicator">2.3 Deduplicator</h4>
+<p>Deduplicator can collect all the bug reports under the same directory, make deduplication and generate a summary bug report. The command is</p>
+<pre><code class="language-bash"><div>java -jar cachecheck/tools/target/tools-deduplicator.jar  <span class="hljs-variable">$ReportDir</span>
+</div></code></pre>
+<p><code>$ReportDir</code> is the directory storing bug reports. When finishing, Deduplicator will generate a <code>summary.report</code> file under the same directory.</p>
+<hr>
+<h2 id="3-detected-unknown-bugs"><strong>3. Detected Unknown bugs</strong></h2>
+<table>
+   <tr>
+      <td>John</td>
+      <td>Smith</td>
+      <td>123 Main St.</td>
+      <td>Springfield</td>
+   </tr>
+   <tr>
+      <td>Mary</td>
+      <td>Jones</td>
+      <td>456 Pine St.</td>
+      <td>Dover</td>
+   </tr>
+   <tr>
+      <td>Jim</td>
+      <td>Baker</td>
+      <td>789 Park Ave.</td>
+      <td>Lincoln</td>
+   </tr>
+</table>
+    </body>
+    </html>

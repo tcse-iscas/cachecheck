@@ -1,0 +1,72 @@
+MLLib	http://issues.apache.org/jira/browse/SPARK-29809	Missing persist	Word2Vec.fit()	dataset	Confirmed	Yes
+MLLib	http://issues.apache.org/jira/browse/SPARK-29810	Missing persist	RandomForest.run()	retaggedInput	Confirmed	Yes
+MLLib	http://issues.apache.org/jira/browse/SPARK-29811	Missing persist	RandomForestRegressor.train()	oldDataset	Confirmed	Yes
+MLLib	http://issues.apache.org/jira/browse/SPARK-29812	Missing persist	MulticlassificationEvaluator.evaluate()	predictionAndLabels	Confirmed	Yes
+MLLib	http://issues.apache.org/jira/browse/SPARK-29813	Missing persist	PrefixSpan.findFrequentItems()	data	Confirmed	Yes
+MLLib	http://issues.apache.org/jira/browse/SPARK-29814	Missing persist	PCA.fit()	sources	Confirmed	No. Limited affect
+MLLib	http://issues.apache.org/jira/browse/SPARK-29815	Missing persist	CrossValidator.fit()	dataset.toDF.rdd	Confirmed	No. Limited affect
+MLLib	http://issues.apache.org/jira/browse/SPARK-29817	Missing persist	LDAOptimizer.initialize()	docs	Confirmed	Yes
+MLLib	http://issues.apache.org/jira/browse/SPARK-29824	Missing persist	GBTClassifier.train()	trainDataset	Confirmed	Yes
+MLLib	http://issues.apache.org/jira/browse/SPARK-29826	Missing persist	ChiSqSelector.fit()	data	Confirmed	Yes
+MLLib	http://issues.apache.org/jira/browse/SPARK-29828	Missing persist	ALS.train()	ratings	Confirmed	Yes
+MLLib	http://issues.apache.org/jira/browse/SPARK-29816	Missing persist	BinaryClassificationMetrics.recallByThreshold()	scoreAndLabels.combineByKey	Confirmed	No. Limited affect
+MLLib	http://issues.apache.org/jira/browse/SPARK-29827	Missing persist	BisectingKMeans.run()	input	Confirmed	Yes
+MLLib	http://issues.apache.org/jira/browse/SPARK-29827	Unnecessary persist	BisectingKMeans.run()	norms	Confirmed	Yes
+MLLib	http://issues.apache.org/jira/browse/SPARK-29827	Missing persist	BisectingKMeans.run()	assignments	Confirmed	Yes
+MLLib	http://issues.apache.org/jira/browse/SPARK-29856	Unnecessary persist	RandomForest.run()	baggedInput	Confirmed	No. Limited affect
+MLLib	http://issues.apache.org/jira/browse/SPARK-29856	Unnecessary persist	KMeans.fit()	instances	Confirmed	No. Limited affect
+MLLib	http://issues.apache.org/jira/browse/SPARK-29856	Unnecessary persist	BisectingKMeans.run()	indices	Confirmed	No. Limited affect
+MLLib	http://issues.apache.org/jira/browse/SPARK-29844	Missing persist	ASL.train()	userIdAndFactors	Confirmed	No. Difficulty
+MLLib	http://issues.apache.org/jira/browse/SPARK-29844	Missing unpersist	ASL.train()	itemIdAndFactors	Confirmed	No. Difficulty
+MLLib	http://issues.apache.org/jira/browse/SPARK-29844	Premature unpersist	ASL.train()	itemFactors	Confirmed	Yes
+MLLib	http://issues.apache.org/jira/browse/SPARK-29844	Lagging unpersist	ASL.train()	userInBlocks	Confirmed	Yes
+MLLib	http://issues.apache.org/jira/browse/SPARK-29844	Lagging unpersist	ASL.train()	userOutBlocks	Confirmed	Yes
+MLLib	http://issues.apache.org/jira/browse/SPARK-29844	Lagging unpersist	ASL.train()	itemOutBlocks	Confirmed	Yes
+MLLib	http://issues.apache.org/jira/browse/SPARK-29844	Lagging unpersist	ASL.train()	BlockRatings	Confirmed	Yes
+MLLib	http://issues.apache.org/jira/browse/SPARK-29781	Unnecessary persist	PeriodicCheckpointer.update()	newData	Confirmed	No. Limited affect
+MLLib	http://issues.apache.org/jira/browse/SPARK-29781	Lagging unpersist	PeriodicCheckpointer.update()	newData	Confirmed	No. Limited affect
+MLLib	http://issues.apache.org/jira/browse/SPARK-29823	Unnecessary persist	KMeans.run()	norms	Confirmed	Yes
+MLLib	http://issues.apache.org/jira/browse/SPARK-29823	Missing persist	KMeans.run()	zippedData	Confirmed	Yes
+MLLib	http://issues.apache.org/jira/browse/SPARK-29832	Unnecessary persist	IsotonicRegression.fit()	instances	Confirmed	No. Limited affect
+MLLib	http://issues.apache.org/jira/browse/SPARK-29872	Missing persist	SparkTC.main()	edges	Confirmed	No. Limited affect
+MLLib	http://issues.apache.org/jira/browse/SPARK-29873	Unnecessary persist	SparkTC.main()	tc	Confirmed	No. Limited affect
+MLLib	http://issues.apache.org/jira/browse/SPARK-29874	Missing persist	LogisticRegressionSummary	fMeasure	Confirmed	No. Limited affect
+SQL	http://issues.apache.org/jira/browse/SPARK-29875	Missing persist	SparkSQLExample.main()	peopleDF	Confirmed	No. Difficulty
+SQL	http://issues.apache.org/jira/browse/SPARK-29876	Missing persist	RDDRelation.main()	createDataFrame	Confirmed	No. Difficulty
+GraphX	http://issues.apache.org/jira/browse/SPARK-29878	Unnecessary persist	GraphImpl.mapVertices()	vertices	Pending	
+GraphX	http://issues.apache.org/jira/browse/SPARK-29878	Unnecessary persist	GraphImpl.mapVertices()	newEdges	Pending	
+GraphX	http://issues.apache.org/jira/browse/SPARK-29878	Missing persist	ReplicatedVertexView	zipPartitions	Pending	
+GraphX	http://issues.apache.org/jira/browse/SPARK-29878	Unnecessary persist	GraphImpl.partitionBy()	newEdges	Pending	
+GraphX	http://issues.apache.org/jira/browse/SPARK-29878	Unnecessary persist	GraphImpl.subgraph()	vertices	Pending	
+GraphX	http://issues.apache.org/jira/browse/SPARK-29878	Unnecessary persist	GraphImpl.aggregateMessagesWithActiveSet()	vertices	Pending	
+MLLib	http://issues.apache.org/jira/browse/SPARK-29878	Missing unpersist	GraphLoader.edgeListFile()	edges	Pending	
+MLLib	http://issues.apache.org/jira/browse/SPARK-29878	Premature unpersist	FPGrowth.genericFit()	items	Confirmed	No. Limited affect
+SQL	A custom case	Missing persist	CacheTableTest.main()	data	Confirmed	Yes
+SQL	http://issues.apache.org/jira/browse/SPARK-30444	Missing persist	SparkSQLExample	df	Pending	
+MLLib	http://issues.apache.org/jira/browse/SPARK-31216	Lagging unpersist	GradientBoostedTrees.boost()	predErrorCheckpointer	Pending	
+MLLib	http://issues.apache.org/jira/browse/SPARK-31216	Lagging unpersist	GradientBoostedTrees.boost()	input	Pending	
+MLLib	http://issues.apache.org/jira/browse/SPARK-29872	Lagging unpersist	LogisticRegression.train()	instances	Confirmed	No. Limited affect
+MLLib	http://issues.apache.org/jira/browse/SPARK-29872	Lagging unpersist	CrossValidator.fit()	validationDataset	Confirmed	No. Limited affect
+MLLib	http://issues.apache.org/jira/browse/SPARK-29872	Lagging unpersist	TrainValidationSplit.fit()	trainingDataset	Confirmed	No. Limited affect
+MLLib	http://issues.apache.org/jira/browse/SPARK-29872	Lagging unpersist	OneVsRest.fit()	trainingDataset	Confirmed	No. Limited affect
+MLLib	http://issues.apache.org/jira/browse/SPARK-31217	Unnecessary persist	BinaryClassificationMetrics	cumulativeCounts	Pending	
+MLLib	http://issues.apache.org/jira/browse/SPARK-29813	Unnecessary persist	PrefixSpan.run()	dataInternalRepr	Confirmed	No. Limited affect
+MLLib	Fixed in 2.4.4 before submitted	Lagging persist	GradientBoostedTrees.boost()	input	Not submit	Yes
+MLLib	Fixed in 2.4.4 before submitted	Missing persist	LDA.fit()	oldData	Not submit	Yes
+MLLib	Fixed in 2.4.4 before submitted	Missing persist	LinearSVC.train()	instances	Not submit	Yes
+MLLib	http://issues.apache.org/jira/browse/SPARK-31218	Missing persist	BinaryClassificationMetrics.recallByThreshold()	counts	Pending	
+MLLib	http://issues.apache.org/jira/browse/SPARK-31217	Missing persist	RegressionMetrics	summary	Pending	
+MLLib	http://issues.apache.org/jira/browse/SPARK-31217	Missing persist	MulticlassMetrics	predictionAndLabels	Pending	
+MLLib	http://issues.apache.org/jira/browse/SPARK-31217	Missing persist	MultilabelMetrics	predictionAndLabels	Pending	
+MLLib	http://issues.apache.org/jira/browse/SPARK-31217	Missing persist	RankingMetrics	predictionAndLabels	Pending	
+MLLib	http://issues.apache.org/jira/browse/SPARK-29813	Missing persist	PrefixSpan.run()	data	Confirmed	No. Limited affect
+MLLib	http://issues.apache.org/jira/browse/SPARK-29813	Missing persist	PrefixSpan.genFreqPatterns()	data	Confirmed	No. Limited affect
+MCL	https://github.com/joandre/MCL_spark/issues/20,MCL_ISSUE-20	Missing persist	MCL.run()	graph.vertices.sortBy	Pending	
+MCL	https://github.com/joandre/MCL_spark/issues/20,MCL_ISSUE-20	Missing persist	MCL.run()	M1	Pending	
+MCL	https://github.com/joandre/MCL_spark/issues/20,MCL_ISSUE-20	Missing persist	MCL.run()	lookupTable	Pending	
+kBetweenness	https://github.com/dmarcous/spark-betweenness/issues/6,KBETWEENNESS_ISSUE-6	Missing persist	kBetweenness.aggregateGraphletsBetweennessScores()	vertexKBcgraph	Pending	
+t-SNE	https://github.com/saurfang/spark-tsne/issues/14,TSNE_ISSUE-14	Missing persist	MNIST.main()	data	Pending	
+t-SNE	https://github.com/saurfang/spark-tsne/issues/14,TSNE_ISSUE-14	Missing persist	X2P.apply()	p_betas	Pending	
+t-SNE	https://github.com/saurfang/spark-tsne/issues/14,TSNE_ISSUE-14	Unnecessary persist	X2P.apply()	norm	Pending	
+t-SNE	https://github.com/saurfang/spark-tsne/issues/14,TSNE_ISSUE-14	Missing persist	SimpleTSNE.tsne()	P	Pending	
+t-SNE	https://github.com/saurfang/spark-tsne/issues/14,TSNE_ISSUE-14	Missing persist	SimpleTSNE.tsne()	dataset	Pending	
