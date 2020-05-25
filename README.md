@@ -1,4 +1,4 @@
-# CacheCheck
+# **CacheCheck**
 
 CacheCheck can effectively detect cache-related bugs in Spark applications.
 See paper [CacheCheck](http://www.tcse.cn/~wsdou/papers/2020-issta-cachecheck.pdf) to learn more details.
