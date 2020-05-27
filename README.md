@@ -43,7 +43,6 @@ java -jar cachecheck/core/target/core-1.0-SNAPSHOT.jar $TraceDir $AppName [-d]
 ```
 `$TraceDir` is the directory that stores traces, i.e., `$SPARK_HOME/trace/`. `$AppName` is the name of the application, which is usually set in the application code. For SparkPi, its application name is `Spark Pi`. `-d` is an option to enable debug mode. In default, CacheCheck delete all trace files after detection. If you want keep them, add `-d` please.  
 After the detection, a bug report, named `$AppName.report`, is generated  in `$SPARK_HOME/trace/`.
-If you add `-d`, the bug report will be `$AppName.report`. It has more information for inspecting the bug.
 
 ## **2. Code Structure**
 CacheCheck mainly has two modules, i.e., `core` and `tools`. `core` module realizes the algorithms and the approach introduced in our paper. `tools` module provides three tools, i.e., `ExampleRunner`, `CachecheckRunner`, and `Deduplicator` for easy and automatic detection. After [Build Cachecheck](#1-build-cachecheck), three runnable jars are generated under `cachecheck/tools/traget/`. They are `tools-examplerunner.jar`, `tools-cachecheckrunner.jar`, and `tools-deduplicator.jar`.  
