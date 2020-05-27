@@ -16,7 +16,7 @@ The trace collection code (i.e., the modification to Spark) is located in `instr
 First, you need to replace `$SPARK_HOME/core/src/main/scala/org/apache/spark/rdd/RDD.scala` with `cachecheck/core/instrument/RDD.scala` and replace `$SPARK_HOME/core/src/main/scala/org/apache/spark/SparkContext.scala` with `cachecheck/core/instrument/SparkContext.scala`.
 We use Spark-2.4.3 in our experiment. If you use other Spark versions, you may need to manually add our trace collection code to the proper place, since directly replacing files may be incompatiable.
 
-Then, you can build a Spark with the trace collection by running the command in `$SPARK_HOME/`: 
+Then, you can build the instrumented Spark by running the command in `$SPARK_HOME/`: 
 ```bash
 mvn package -DskipTests
 ```
