@@ -22,8 +22,8 @@ mvn package -DskipTests
 ```
 #### 1.3 Collect Traces
 While the application runs on Spark, the instrumented code can collect traces and store them in `$SPARK_HOME/trace/`.
-In our experiment, we use Spark's build-in examples and six word count examples to drive Spark running. 
-Taking SparkPi as the example, it can run by the command 
+In our experiment, we use Spark's build-in examples and six word count examples as test cases. 
+Taking SparkPi as the example, we can run it by the command 
 ```bash
 $SPARK_HOME/bin/run-example SparkPi
 ```
