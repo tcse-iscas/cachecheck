@@ -27,11 +27,11 @@ Taking SparkPi as the example, we can run it by the command
 ```bash
 $SPARK_HOME/bin/run-example SparkPi
 ```
-We provide six word count examples in directory `wordcount`. You can add the whole directory in `SPARK_HOME/examples/src/main/scala/org/apache/spark/examples`, and then compile example module, and run the similar command, such as
+We provide six word count examples in directory `wordcount`. You can add this directory to `SPARK_HOME/examples/src/main/scala/org/apache/spark/examples`, and then compile the example module, and run these examples by similar commands, such as
 ```bash
 $SPARK_HOME/bin/run-example wordcount.MissingPersist
 ```  
-In our paper, we mainly ran examples in GraphX, MLLib, and Spark SQL. They can also be run by similar command, such as 
+In our paper, we mainly ran examples in GraphX, MLLib, and Spark SQL. They can also be run by similar commands, such as 
 ```bash
 $SPARK_HOME/bin/run-example graphx.ConnectedComponentsExample
 ```  
@@ -41,7 +41,7 @@ The detection is performed by
 ```bash
 java -jar cachecheck/core/target/core-1.0-SNAPSHOT.jar $TraceDir $AppName [-d]
 ```
-`$TraceDir` is the directory that stores traces, i.e., `$SPARK_HOME/trace/`. `$AppName` is the name of the application, which is usually set in the application code. It is also the file name of the intermediate files got in step 3. For SparkPi, its application name is `Spark Pi`. `-d` is an option about debug mode. In default, CacheCheck delete all intermediate files after detection. If you want keep them, add `-d` please.  
+`$TraceDir` is the directory that stores traces, i.e., `$SPARK_HOME/trace/`. `$AppName` is the name of the application, which is usually set in the application code. For SparkPi, its application name is `Spark Pi`. `-d` is an option to enable debug mode. In default, CacheCheck delete all trace files after detection. If you want keep them, add `-d` please.  
 After the detection, a bug report, named `$AppName.report`, is generated  in `$SPARK_HOME/trace/`.
 If you add `-d`, the bug report will be `$AppName.report`. It has more information for inspecting the bug.
 
