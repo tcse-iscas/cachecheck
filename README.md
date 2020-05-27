@@ -41,13 +41,13 @@ The detection is performed by
 ```bash
 java -jar cachecheck/core/target/core-1.0-SNAPSHOT.jar $TraceDir $AppName [-d]
 ```
-`$TraceDir` is the directory that stores traces, i.e., `$SPARK_HOME/trace/`. `$AppName` is the name of the application, which is usually set in the application code. For SparkPi, its application name is `Spark Pi`. `-d` is an option to enable debug mode. In default, CacheCheck delete all trace files after detection. If you want keep them, add `-d` please.  
+`$TraceDir` is the directory that stores traces, i.e., `$SPARK_HOME/trace/`. `$AppName` is the name of the application, which is usually set in the application code. For SparkPi, its application name is `Spark Pi`. `-d` is an option to enable debug mode. In default, CacheCheck deletes all trace files after detection. If you want keep them, add `-d` please.  
 After the detection, a bug report, named `$AppName.report`, is generated  in `$SPARK_HOME/trace/`.
 
 ## **2. Code Structure**
-CacheCheck mainly has two modules, i.e., `core` and `tools`. `core` module realizes the algorithms and the approach introduced in our paper. `tools` module provides three tools, i.e., `ExampleRunner`, `CachecheckRunner`, and `Deduplicator` for easy and automatic detection. After [Build Cachecheck](#1-build-cachecheck), three runnable jars are generated under `cachecheck/tools/traget/`. They are `tools-examplerunner.jar`, `tools-cachecheckrunner.jar`, and `tools-deduplicator.jar`.  
+CacheCheck mainly has two modules, i.e., `core` and `tools`. `core` module implement the approach introduced in our paper. `tools` module provides three tools, i.e., `ExampleRunner`, `CachecheckRunner`, and `Deduplicator`, for easy and automatic bug detection. After [Build Cachecheck](#1-build-cachecheck), three runnable jars are generated under `cachecheck/tools/traget/`. They are `tools-examplerunner.jar`, `tools-cachecheckrunner.jar`, and `tools-deduplicator.jar`.  
 #### 2.1 ExampleRunner
-ExampleRunner can automatically run Spark's build-in examples. It requires a configuration file, which is a xml file just like `example-list-all.xml` in `cachecheck/tools/resource`. In this file, you can denote which examples to run.  
+ExampleRunner can automatically run Spark's build-in examples. It requires a configuration file, which is an xml file just like `example-list-all.xml` in `cachecheck/tools/resource`. In this file, you can specify which examples to run.  
 The execution command is 
 ```bash
 java -jar cachecheck/tools/target/tools-examplerunner.jar $ExampleList $SparkDir
@@ -59,16 +59,16 @@ The execution command is
 ```bash
 java -jar cachecheck/tools/target/tools-cachecheckrunner.jar  $TraceDir
 ```
-`$TraceDir` is the diretocry that traces locate in, e.g., `$SPARK_HOME/trace`.  
+`$TraceDir` is the diretocry where traces files are located, e.g., `$SPARK_HOME/trace`.  
 #### 2.3 Deduplicator
-Deduplicator can collect all the bug reports under the same directory, make deduplication and generate a summary bug report. The command is 
+Deduplicator can collect all the bug reports under the same directory, remove duplicated bug report and generate a summary bug report. The command is 
 ```bash
 java -jar cachecheck/tools/target/tools-deduplicator.jar  $ReportDir
 ``` 
-`$ReportDir` is the directory storing bug reports. When finishing, Deduplicator will generate a `summary.report` file under the same directory.
+`$ReportDir` is the directory that contains the bug reports. After the execution of Deduplicator, it will generate a `summary.report` file under the same directory.
 ***
 
-## **3. Detected Unknown bugs**
+## **3. Detected Unknown Bugs**
 <table>
   <tbody><tr>
     <th>ID</th>
